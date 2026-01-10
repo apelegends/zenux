@@ -1,0 +1,519 @@
+/* Global */
+body {
+  margin: 0;
+  background:
+    radial-gradient(circle at top left, rgba(59,130,246,0.35) 0%, transparent 55%),
+    radial-gradient(circle at bottom right, rgba(8,47,73,0.9) 0%, #020617 70%);
+  color: #e0e0e0;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  overflow: hidden;
+  cursor: default;
+}
+
+.hidden {
+  display: none;
+}
+
+/* Boot monitor */
+#boot-monitor {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(circle at top left, rgba(59,130,246,0.45) 0%, transparent 55%),
+    radial-gradient(circle at bottom right, rgba(8,47,73,1) 0%, #020617 75%);
+}
+
+#boot-monitor-inner {
+  width: 480px;
+  max-width: 90vw;
+  height: 290px;
+  background: radial-gradient(circle at top left, #020617 0%, #020617 45%, #020617 100%);
+  border-radius: 14px;
+  border: 1px solid rgba(148,163,184,0.6);
+  box-shadow:
+    0 0 40px rgba(15,23,42,0.9),
+    0 0 70px rgba(37,99,235,0.6);
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
+  backdrop-filter: blur(14px);
+}
+
+#boot-monitor-title {
+  font-size: 13px;
+  color: #e0f2fe;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+#boot-monitor-title::before {
+  content: "●";
+  color: #22c55e;
+  font-size: 10px;
+}
+
+#boot-monitor-log {
+  flex: 1;
+  background: rgba(15,23,42,0.95);
+  border-radius: 8px;
+  border: 1px solid #1e293b;
+  padding: 8px;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  color: #e5e7eb;
+  white-space: pre-wrap;
+  overflow: auto;
+}
+
+#boot-select-folder {
+  margin-top: 8px;
+  align-self: flex-start;
+  padding: 5px 14px;
+  border-radius: 999px;
+  border: 1px solid #facc15;
+  background: radial-gradient(circle at left, #22c55e, #facc15, #22c55e);
+  background-size: 200% 100%;
+  color: #020617;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+/* Desktop */
+#desktop {
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(circle at top left, rgba(59,130,246,0.45) 0%, transparent 55%),
+    radial-gradient(circle at bottom right, rgba(8,47,73,1) 0%, #020617 75%);
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 0.7s ease;
+}
+
+#desktop.visible {
+  opacity: 1;
+}
+
+/* About button */
+#about-button {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(148,163,184,0.7);
+  background: rgba(15,23,42,0.9);
+  color: #eff6ff;
+  font-size: 12px;
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+}
+
+/* Desktop icons */
+#desktop-icons {
+  position: fixed;
+  top: 70px;
+  left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.desktop-icon {
+  width: 80px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #e5e7eb;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.desktop-icon-img {
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  background:
+    radial-gradient(circle at top left, #60a5fa, #1d4ed8);
+  box-shadow:
+    0 0 12px rgba(59,130,246,0.9),
+    0 0 24px rgba(15,23,42,0.9);
+  margin-bottom: 4px;
+}
+
+.desktop-icon-label {
+  font-size: 11px;
+  text-align: center;
+  text-shadow: 0 1px 2px #000000;
+}
+
+/* Start logo */
+#start-logo {
+  position: fixed;
+  bottom: 4px;
+  left: 4px;
+  height: 34px;
+  padding: 0 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(148,163,184,0.7);
+  background: radial-gradient(circle at top left, #60a5fa, #1e3a8a);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  backdrop-filter: blur(16px);
+}
+
+.start-logo-icon {
+  width: 18px;
+  height: 18px;
+  border-radius: 6px;
+  background: rgba(15,23,42,0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 11px;
+  color: #bfdbfe;
+}
+
+.start-logo-text {
+  font-size: 12px;
+  color: #e5e7eb;
+}
+
+/* Start menu */
+#start-menu {
+  position: fixed;
+  bottom: 38px;
+  left: 4px;
+  width: 260px;
+  background: rgba(15,23,42,0.96);
+  border-radius: 16px;
+  border: 1px solid rgba(148,163,184,0.5);
+  box-shadow:
+    0 0 30px rgba(15,23,42,0.9),
+    0 0 60px rgba(37,99,235,0.6);
+  backdrop-filter: blur(18px);
+}
+
+#start-menu-inner {
+  padding: 10px;
+}
+
+.start-menu-title {
+  font-size: 12px;
+  color: #e5e7eb;
+  margin-bottom: 6px;
+}
+
+.start-menu-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.start-menu-item {
+  padding: 6px 8px;
+  border-radius: 10px;
+  border: 1px solid rgba(30,64,175,0.8);
+  background: radial-gradient(circle at top left, rgba(30,64,175,0.9), rgba(15,23,42,0.95));
+  color: #e5e7eb;
+  font-size: 12px;
+  text-align: left;
+  cursor: pointer;
+}
+
+/* Taskbar */
+#taskbar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 38px;
+  background: linear-gradient(90deg, rgba(15,23,42,0.96), rgba(15,23,42,0.9));
+  border-top: 1px solid rgba(30,64,175,0.8);
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  backdrop-filter: blur(18px);
+}
+
+#task-apps {
+  display: flex;
+  gap: 6px;
+}
+
+.task-btn {
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(129,140,248,0.9);
+  background: rgba(15,23,42,0.95);
+  color: #e5e7eb;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+#task-status {
+  margin-left: auto;
+  display: flex;
+  gap: 10px;
+  font-size: 11px;
+  color: #9ca3af;
+}
+
+#task-webgl {
+  color: #7dd3fc;
+}
+
+#task-temp {
+  color: #facc15;
+}
+
+#task-time {
+  color: #e5e7eb;
+}
+
+/* Window frame */
+.zenux-window {
+  position: absolute;
+  width: 540px;
+  height: 340px;
+  background: radial-gradient(circle at top left, rgba(15,23,42,0.98), rgba(15,23,42,0.96));
+  border: 1px solid rgba(30,64,175,0.9);
+  box-shadow:
+    0 0 24px rgba(15,23,42,0.95),
+    0 0 40px rgba(37,99,235,0.7);
+  display: flex;
+  flex-direction: column;
+  border-radius: 14px;
+  overflow: hidden;
+  backdrop-filter: blur(18px);
+}
+
+.window-titlebar {
+  height: 32px;
+  background: linear-gradient(90deg, rgba(15,23,42,0.98), rgba(30,64,175,0.7));
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  user-select: none;
+}
+
+.window-title {
+  font-size: 12px;
+  color: #e5e7eb;
+}
+
+.window-controls {
+  margin-left: auto;
+  display: flex;
+}
+
+.win-btn {
+  width: 38px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #e5e7eb;
+}
+
+.window-content {
+  flex: 1;
+  padding: 10px;
+  font-size: 13px;
+  overflow: auto;
+  color: #e5e7eb;
+}
+
+/* Safari (mobile-style) */
+.safari-root {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #ffffff;
+  color: #111;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.safari-urlbar {
+  padding: 8px;
+  background: #f2f2f7;
+  border-bottom: 1px solid #d1d1d6;
+}
+
+.safari-url {
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 12px;
+  border: none;
+  background: #ffffff;
+  font-size: 14px;
+  outline: none;
+  box-shadow: 0 0 0 1px #d1d1d6 inset;
+}
+
+.safari-view {
+  flex: 1;
+  background: #000;
+}
+
+.safari-iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+.safari-toolbar {
+  height: 44px;
+  background: #f2f2f7;
+  border-top: 1px solid #d1d1d6;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+
+.safari-btn {
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+/* Explorer list */
+.explorer-list {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 12px;
+  white-space: pre;
+}
+
+/* Terminal */
+.terminal {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 12px;
+  background: #020617;
+  border-radius: 4px;
+  border: 1px solid #1e293b;
+  padding: 6px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.terminal-output {
+  flex: 1;
+  overflow: auto;
+  white-space: pre-wrap;
+  color: #e5e7eb;
+}
+
+.terminal-input-row {
+  display: flex;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.terminal-prompt {
+  color: #22c55e;
+}
+
+.terminal-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: #e5e7eb;
+  font-family: inherit;
+  font-size: 12px;
+}
+
+/* DEB Inspector & Emulator panels */
+.deb-root {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 12px;
+}
+
+.deb-toolbar {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.deb-btn {
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid #38bdf8;
+  background: #0b1120;
+  color: #e0f2fe;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.deb-section-title {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.deb-meta,
+.deb-langs,
+.deb-log,
+.deb-files {
+  flex: 1;
+  border-radius: 4px;
+  border: 1px solid #1e293b;
+  background: #020617;
+  padding: 6px;
+  overflow: auto;
+  white-space: pre-wrap;
+  margin-bottom: 4px;
+}
+
+/* Eaglercraft window */
+.eagler-root {
+  width: 100%;
+  height: 100%;
+  background: #000;
+}
+
+.eagler-iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+/* About */
+.about-root {
+  background: #0b1120;
+  color: #e5e7eb;
+  border-radius: 8px;
+  padding: 10px;
+  font-size: 13px;
+}
+
+/* System message */
+.system-message {
+  background: #020617;
+  border: 1px solid #3b82f6;
+  border-radius: 8px;
+  padding: 10px;
+  font-size: 13px;
+}
+
+.system-message-title {
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: #bfdbfe;
+}

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>zenuxOS</title>
+  <link rel="stylesheet" href="shit.css">
+</head>
+<body>
+
+  <!-- Boot monitor -->
+  <div id="boot-monitor">
+    <div id="boot-monitor-inner">
+      <div id="boot-monitor-title">zenuxOS boot diagnostics</div>
+      <div id="boot-monitor-log"></div>
+      <button id="boot-select-folder">Select storage folder</button>
+    </div>
+  </div>
+
+  <!-- Desktop -->
+  <div id="desktop" class="hidden">
+    <!-- Top-left About button -->
+    <button id="about-button">About zenuxOS</button>
+
+    <!-- Desktop app icons -->
+    <div id="desktop-icons">
+      <button class="desktop-icon" data-app="explorer">
+        <div class="desktop-icon-img"></div>
+        <div class="desktop-icon-label">Explorer</div>
+      </button>
+      <button class="desktop-icon" data-app="browser">
+        <div class="desktop-icon-img"></div>
+        <div class="desktop-icon-label">Safari</div>
+      </button>
+      <button class="desktop-icon" data-app="terminal">
+        <div class="desktop-icon-img"></div>
+        <div class="desktop-icon-label">Terminal</div>
+      </button>
+      <button class="desktop-icon" data-app="debinspector">
+        <div class="desktop-icon-img"></div>
+        <div class="desktop-icon-label">DEB Inspector</div>
+      </button>
+      <button class="desktop-icon" data-app="eaglercraft">
+        <div class="desktop-icon-img"></div>
+        <div class="desktop-icon-label">Eaglercraft</div>
+      </button>
+    </div>
+
+    <!-- Start / logo bottom-left -->
+    <button id="start-logo">
+      <span class="start-logo-icon">Z</span>
+      <span class="start-logo-text">zenuxOS</span>
+    </button>
+
+    <!-- Start menu -->
+    <div id="start-menu" class="hidden">
+      <div id="start-menu-inner">
+        <div class="start-menu-title">All apps</div>
+        <div class="start-menu-grid">
+          <button class="start-menu-item" data-app="explorer">Explorer</button>
+          <button class="start-menu-item" data-app="browser">Safari</button>
+          <button class="start-menu-item" data-app="terminal">Terminal</button>
+          <button class="start-menu-item" data-app="debinspector">DEB Inspector</button>
+          <button class="start-menu-item" data-app="eaglercraft">Eaglercraft</button>
+          <button class="start-menu-item" data-app="about">About</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Taskbar -->
+  <div id="taskbar" class="hidden">
+    <div id="task-apps"></div>
+    <div id="task-status">
+      <span id="task-webgl"></span>
+      <span id="task-temp">Temp: 35°C</span>
+      <span id="task-time"></span>
+    </div>
+  </div>
+
+  <script src="stuff.js"></script>
+  <script src="browser.js"></script>
+  <script src="deb.js"></script>
+  <script src="eaglercraft.js"></script>
+</body>
+</html>
