@@ -3,12 +3,20 @@
 const EAGLER_URL = "https://eaglercraft.com/";
 
 function buildEaglerContent() {
-  if (!hasWebGL()) {
+  const gl = hasWebGL();
+  const wasm = hasWasm();
+
+  if (!gl || !wasm) {
     return `
       <div class="eagler-root">
         <div style="color:#fca5a5;font-family:system-ui;padding:16px;">
-          <h3>WebGL not available</h3>
-          <p>Your browser/device does not support WebGL. Eaglercraft cannot run.</p>
+          <h3>Eaglercraft cannot run</h3>
+          <p>Reason:</p>
+          <ul>
+            ${!gl ? "<li>WebGL is not available.</li>" : ""}
+            ${!wasm ? "<li>WebAssembly is not available.</li>" : ""}
+          </ul>
+          <p>Use a modern Chromium-based browser (Chrome / Edge / Brave) with hardware acceleration enabled.</p>
         </div>
       </div>
     `;
@@ -22,9 +30,25 @@ function buildEaglerContent() {
 }
 
 function initEaglerWindow(win) {
-  if (!hasWebGL()) return;
+  const gl = hasWebGL();
+  const wasm = hasWasm();
+  if (!gl || !wasm) return;
 
   const frame = win.querySelector("#eagler-frame");
+
+  frame.addEventListener("load", () => {
+    try {
+      const _href = frame.contentWindow.location.href;
+    } catch (e) {
+      frame.srcdoc = `
+        <body style="background:#111;color:#eee;font-family:sans-serif;padding:20px;">
+          <h2>Eaglercraft could not display inside ZenuxOS</h2>
+          <p>The website might block embedding in an iframe.</p>
+          <p>Try opening it directly in your browser: <b>${EAGLER_URL}</b></p>
+        </body>
+      `;
+    }
+  });
 
   frame.addEventListener("error", () => {
     frame.srcdoc = `
