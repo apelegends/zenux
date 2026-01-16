@@ -25,6 +25,17 @@ const aboutButton = document.getElementById("about-button");
 const startLogo = document.getElementById("start-logo");
 const startMenu = document.getElementById("start-menu");
 
+// Login / trial
+const loginOverlay = document.getElementById("login-overlay");
+const loginUser = document.getElementById("login-user");
+const loginPass = document.getElementById("login-pass");
+const loginError = document.getElementById("login-error");
+const loginSubmit = document.getElementById("login-submit");
+const loginContinue = document.getElementById("login-continue");
+
+const trialOverlay = document.getElementById("trial-overlay");
+const trialDevUnlock = document.getElementById("trial-dev-unlock");
+
 // FS + state
 let zenuxRootHandle = null;
 let configDirHandle = null;
@@ -35,10 +46,48 @@ const windowsById = new Map();
 let currentTemp = 35;
 let tempInterval = null;
 
-// last installed package meta for Emulator (optional use)
-let lastInstalledPackage = null;
+// Trial / login
+const TRIAL_DURATION_MS = 30 * 60 * 1000;
+let trialStartTime = Date.now();
+let trialInterval = null;
+let trialUnlocked = false;
+let isAdmin = false;
 
-// ===== WEBGL DETECTION =====
+// ===== ZENUX CORE WASM =====
+let coreReady = false;
+let core = {
+  init: null,
+  getUptimeMs: null,
+  getMajor: null,
+  getMinor: null,
+  getPatch: null,
+  getCpuMhz: null,
+  getRamMb: null,
+};
+
+function initZenuxCore() {
+  if (typeof Module === "undefined") {
+    console.warn("zenux_core Module not found");
+    return;
+  }
+
+  Module.onRuntimeInitialized = () => {
+    core.init = Module.cwrap("zenux_init", null, ["number"]);
+    core.getUptimeMs = Module.cwrap("zenux_get_uptime_ms", "number", ["number"]);
+    core.getMajor = Module.cwrap("zenux_get_major_version", "number", []);
+    core.getMinor = Module.cwrap("zenux_get_minor_version", "number", []);
+    core.getPatch = Module.cwrap("zenux_get_patch_version", "number", []);
+    core.getCpuMhz = Module.cwrap("zenux_get_fake_cpu_mhz", "number", []);
+    core.getRamMb = Module.cwrap("zenux_get_fake_ram_mb", "number", []);
+
+    core.init(Date.now());
+    coreReady = true;
+    console.log("Zenux Core WASM initialized");
+  };
+}
+initZenuxCore();
+
+// ===== WEBGL & WEBASSEMBLY DETECTION =====
 function hasWebGL() {
   try {
     const canvas = document.createElement("canvas");
@@ -51,20 +100,43 @@ function hasWebGL() {
   }
 }
 
+function hasWasm() {
+  try {
+    return typeof WebAssembly === "object" &&
+           typeof WebAssembly.instantiate === "function";
+  } catch {
+    return false;
+  }
+}
+
 // ===== BOOT LOG =====
 function logBoot(line) {
   bootMonitorLog.textContent += line + "\n";
   bootMonitorLog.scrollTop = bootMonitorLog.scrollHeight;
 }
 
-logBoot("[REAL] zenuxOS bootloader started");
+logBoot("[REAL] zenuxOS 1.2.0 bootloader started");
 logBoot("[FAKE] Mounting /dev/html0 ...");
 logBoot("[FAKE] Checking virtual sectors ... OK");
+
 logBoot(
   hasWebGL()
-    ? "[REAL] WebGL detected. Eaglercraft can run."
-    : "[WARN] WebGL NOT available. Eaglercraft will NOT run."
+    ? "[REAL] WebGL detected."
+    : "[WARN] WebGL NOT available."
 );
+
+logBoot(
+  hasWasm()
+    ? "[REAL] WebAssembly detected."
+    : "[WARN] WebAssembly NOT available."
+);
+
+logBoot(
+  hasWebGL() && hasWasm()
+    ? "[REAL] Environment supports WebGL/WASM clients."
+    : "[WARN] Environment may NOT support WebGL/WASM clients."
+);
+
 logBoot("[REAL] Waiting for storage folder selection…");
 
 function supportsFS() {
@@ -125,11 +197,12 @@ function startZenuxDesktop() {
     });
     startSystem();
     showSystemMessagePopup();
+    setTimeout(showLoginOverlay, 700);
   }, 500);
 }
 
 function startZenuxWithoutFolder() {
-  zenuxRootHandle = null; // virtual mode
+  zenuxRootHandle = null;
   startZenuxDesktop();
 }
 
@@ -138,6 +211,11 @@ function startSystem() {
   if (!tempInterval) tempInterval = setInterval(updateTemp, 1500);
   updateTime();
   updateWebGLStatus();
+
+  if (!trialInterval) {
+    trialStartTime = Date.now();
+    trialInterval = setInterval(checkTrial, 1000);
+  }
 }
 
 function updateTime() {
@@ -153,12 +231,74 @@ function updateTemp() {
 }
 
 function updateWebGLStatus() {
-  if (hasWebGL()) {
-    webglBox.textContent = "WebGL: OK";
+  const gl = hasWebGL();
+  const wasm = hasWasm();
+  if (gl && wasm) {
+    webglBox.textContent = "WebGL/WASM: OK";
+  } else if (gl && !wasm) {
+    webglBox.textContent = "WebGL: OK, WASM: NO";
+  } else if (!gl && wasm) {
+    webglBox.textContent = "WebGL: NO, WASM: OK";
   } else {
-    webglBox.textContent = "WebGL: NOT AVAILABLE";
+    webglBox.textContent = "WebGL/WASM: NOT AVAILABLE";
   }
 }
+
+// ===== TRIAL TIMER =====
+function pauseZenuxForTrial() {
+  desktop.classList.add("hidden");
+  taskbar.classList.add("hidden");
+  trialOverlay.classList.remove("hidden");
+}
+
+function checkTrial() {
+  if (trialUnlocked) return;
+  const elapsed = Date.now() - trialStartTime;
+  if (elapsed >= TRIAL_DURATION_MS) {
+    pauseZenuxForTrial();
+    clearInterval(trialInterval);
+    trialInterval = null;
+  }
+}
+
+trialDevUnlock.addEventListener("click", () => {
+  trialUnlocked = true;
+  trialOverlay.classList.add("hidden");
+  desktop.classList.remove("hidden");
+  taskbar.classList.remove("hidden");
+});
+
+// ===== LOGIN OVERLAY LOGIC =====
+const ADMIN_USER = "apexlegends";
+const ADMIN_PASS_HASH = "22032014aA@".split("").reverse().join("");
+
+function checkAdminPassword(input) {
+  return input.split("").reverse().join("") === ADMIN_PASS_HASH;
+}
+
+function showLoginOverlay() {
+  loginOverlay.classList.remove("hidden");
+  loginUser.value = "";
+  loginPass.value = "";
+  loginError.textContent = "";
+  loginUser.focus();
+}
+
+loginSubmit.addEventListener("click", () => {
+  const user = loginUser.value.trim();
+  const pass = loginPass.value;
+  if (user !== ADMIN_USER || !checkAdminPassword(pass)) {
+    loginError.textContent = "Invalid admin credentials.";
+    return;
+  }
+  isAdmin = true;
+  loginOverlay.classList.add("hidden");
+});
+
+loginContinue.addEventListener("click", () => {
+  isAdmin = false;
+  loginOverlay.classList.add("hidden");
+});
 
 // ===== WINDOW SYSTEM =====
 function createWindow(appId, title, contentHTML) {
@@ -289,7 +429,7 @@ function showSystemMessagePopup() {
       <div>
         made by apex: alex nguyen<br>
         2026<br>
-        version 1.0.0
+        version 1.2.0
       </div>
     </div>
   `;
@@ -394,7 +534,7 @@ function buildAboutContent() {
     <div class="about-root">
       <h3 style="margin-top:0;margin-bottom:4px;">About zenuxOS</h3>
       <p style="margin-top:0;margin-bottom:6px;">
-        Browser-based OS simulation with Safari browser, DEB Inspector and Eaglercraft window.
+        zenuxOS 1.2.0 — browser-based OS simulation with Safari, DEB Inspector, Eaglercraft and a C++ WebAssembly core.
       </p>
       <p style="margin-top:0;margin-bottom:6px;">
         made by alex nguyen/apexlegends
@@ -404,6 +544,45 @@ function buildAboutContent() {
       </p>
     </div>
   `;
+}
+
+// ===== ZENUX CORE APP =====
+function buildCoreContent() {
+  return `
+    <div class="about-root" id="core-root">
+      <h3 style="margin-top:0;margin-bottom:4px;">ZenuxOS Core 1.2.0</h3>
+      <p id="core-version">Loading core version…</p>
+      <p id="core-uptime">Uptime: -</p>
+      <p id="core-hw">CPU/RAM: -</p>
+    </div>
+  `;
+}
+
+function initCoreWindow(win) {
+  const verEl = win.querySelector("#core-version");
+  const upEl = win.querySelector("#core-uptime");
+  const hwEl = win.querySelector("#core-hw");
+
+  function refresh() {
+    if (!coreReady) {
+      verEl.textContent = "Core not ready (WASM still loading)…";
+      return;
+    }
+    const now = Date.now();
+    const upMs = core.getUptimeMs(now);
+    const sec = Math.floor(upMs / 1000);
+    const min = Math.floor(sec / 60);
+    const s = sec % 60;
+
+    const v = `${core.getMajor()}.${core.getMinor()}.${core.getPatch()}`;
+    verEl.textContent = `Core version: ${v}`;
+    upEl.textContent = `Uptime: ${min}m ${s}s`;
+    hwEl.textContent = `CPU: ${core.getCpuMhz()} MHz (fake) · RAM: ${core.getRamMb()} MB (fake)`;
+  }
+
+  refresh();
+  const interval = setInterval(refresh, 1000);
+  win.addEventListener("DOMNodeRemoved", () => clearInterval(interval));
 }
 
 // ===== DESKTOP ICONS + START MENU =====
@@ -446,6 +625,8 @@ function launchAppById(app) {
     openOrFocusApp("debinspector", "DEB Inspector", buildDebInspectorContent, initDebInspectorWindow);
   } else if (app === "eaglercraft") {
     openOrFocusApp("eaglercraft", "Eaglercraft", buildEaglerContent, initEaglerWindow);
+  } else if (app === "core") {
+    openOrFocusApp("core", "Zenux Core", buildCoreContent, initCoreWindow);
   } else if (app === "about") {
     openOrFocusApp("about", "About zenuxOS", buildAboutContent);
   }
