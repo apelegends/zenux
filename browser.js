@@ -86,7 +86,6 @@ function initSafariWindow(win) {
 
   iframe.addEventListener("load", () => {
     try {
-      // will throw if site blocks iframe
       const _test = iframe.contentWindow.location.href;
     } catch {
       iframe.srcdoc = `
@@ -99,5 +98,5 @@ function initSafariWindow(win) {
     }
   });
 
-  navigate("https://example.com");
+  navigate("https://google.com");
 }
