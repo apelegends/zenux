@@ -2,10 +2,41 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>zenuxOS</title>
+  <title>zenuxOS 1.2.0</title>
   <link rel="stylesheet" href="shit.css">
 </head>
 <body>
+
+  <!-- Admin login overlay -->
+  <div id="login-overlay" class="hidden">
+    <div id="login-box">
+      <h2>zenuxOS Admin Login</h2>
+      <label>
+        Username<br>
+        <input type="text" id="login-user">
+      </label>
+      <br>
+      <label>
+        Password<br>
+        <input type="password" id="login-pass">
+      </label>
+      <div id="login-error"></div>
+      <div id="login-buttons">
+        <button id="login-submit">Login</button>
+        <button id="login-continue">Continue without admin</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Trial expired overlay -->
+  <div id="trial-overlay" class="hidden">
+    <div id="trial-box">
+      <h2>zenuxOS Trial ended</h2>
+      <p>Your 30 minute session has ended.</p>
+      <p>This is a local demo only. No real payments are processed.</p>
+      <button id="trial-dev-unlock">Dev unlock (simulate full version)</button>
+    </div>
+  </div>
 
   <!-- Boot monitor -->
   <div id="boot-monitor">
@@ -43,6 +74,10 @@
         <div class="desktop-icon-img"></div>
         <div class="desktop-icon-label">Eaglercraft</div>
       </button>
+      <button class="desktop-icon" data-app="core">
+        <div class="desktop-icon-img"></div>
+        <div class="desktop-icon-label">Zenux Core</div>
+      </button>
     </div>
 
     <!-- Start / logo bottom-left -->
@@ -61,6 +96,7 @@
           <button class="start-menu-item" data-app="terminal">Terminal</button>
           <button class="start-menu-item" data-app="debinspector">DEB Inspector</button>
           <button class="start-menu-item" data-app="eaglercraft">Eaglercraft</button>
+          <button class="start-menu-item" data-app="core">Zenux Core</button>
           <button class="start-menu-item" data-app="about">About</button>
         </div>
       </div>
@@ -77,9 +113,12 @@
     </div>
   </div>
 
+  <script src="zenux_core.js"></script>
   <script src="stuff.js"></script>
   <script src="browser.js"></script>
   <script src="deb.js"></script>
   <script src="eaglercraft.js"></script>
 </body>
 </html>
+
+     
